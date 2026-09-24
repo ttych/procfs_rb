@@ -1,0 +1,11 @@
+{
+  "project_name": "procfs_rb",
+  "instructions": "Follow the guidelines in AGENTS.md.",
+  "ignored_paths": [
+    "coverage/",
+    ".git/",
+    "tmp/",
+    "bin/console",
+    "bin/setup"
+  ]
+}
