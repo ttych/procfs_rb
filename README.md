@@ -2,6 +2,22 @@
 
 A Ruby interface for browsing and analyzing the Linux `/proc` filesystem.
 
+## Usage
+
+Once loaded, it provides ProcFS module.
+
+``` ruby
+require 'procfs_rb'
+
+procfs = ProcFS.new()
+
+# get cpuinfo
+cpuinfo = procfs.cpuinfo
+
+# get all sockets
+sockets = procfs.net.tcp.sockets
+```
+
 ## Installation
 
 Install the gem by executing:
