@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require 'test_helper'
+require 'ipaddr'
+require_relative '../../../lib/procfs_rb/proc_fs/parser/net_tcp_parser'
+
+class TestNetTcpParser < Minitest::Test
+  def setup
+    @parser = ProcFS::Parser::NetTcpParser.new
+    @sample_content = <<~CONTENT
+      sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
+      0: 0100007F:0050 00000000:0000 0A 0:0 0:0 0 0
+      1: 0100007F:04D2 08080808:01BB 01 0:0 0:0 100 12345
+    CONTENT
+  end
+
+  def test_parse_basic
+    result = @parser.parse(@sample_content)
+
+    assert_instance_of ProcFS::State::NetTcp, result
+    assert_equal 2, result.size
+    assert_equal '/proc/net/tcp', result.source
+    assert_kind_of Time, result.timestamp
+  end
+
+  def test_parse_socket_details
+    result = @parser.parse(@sample_content)
+
+    # Socket 0: 127.0.0.1:80, state :listen (0A)
+    s0 = result.sockets.find { |s| s.local_port == 80 }
+
+    assert_equal IPAddr.new('127.0.0.1'), s0.local_address
+    assert_equal :listen, s0.connection_state
+    assert_equal 0, s0.tx_queue
+    assert_equal 0, s0.rx_queue
+
+    # Socket 1: 127.0.0.1:1234, 8.8.8.8:443, state :established (01)
+    s1 = result.sockets.find { |s| s.local_port == 1234 }
+
+    assert_equal IPAddr.new('127.0.0.1'), s1.local_address
+    assert_equal IPAddr.new('8.8.8.8'), s1.remote_address
+    assert_equal 443, s1.remote_port
+    assert_equal :established, s1.connection_state
+  end
+
+  def test_parse_empty_content
+    result = @parser.parse("sl  local_address rem_address   st tx_queue rx_queue tr tm->filling\n")
+
+    assert_empty result.sockets
+  end
+
+  def test_parse_with_custom_source
+    result = @parser.parse(@sample_content, source: '/custom/path')
+
+    assert_equal '/custom/path', result.source
+  end
+end

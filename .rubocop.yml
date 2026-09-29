@@ -12,7 +12,18 @@ Gemspec/DevelopmentDependencies:
   Enabled: false
 
 Layout/LineLength:
-  Max: 100
+  Max: 120
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude:
+    - 'test/**/test*.rb'
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/ParameterLists:
+  Max: 10
 
 Style/Documentation:
   Enabled: false
