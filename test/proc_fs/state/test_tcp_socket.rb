@@ -17,6 +17,7 @@ class TestTcpSocket < Minitest::Test
       tx_queue: 0,
       rx_queue: 0,
       uid: 1000,
+      timeout: 0,
       inode: 12_345
     )
   end
@@ -83,6 +84,7 @@ class TestTcpSocket < Minitest::Test
       tx_queue: 0,
       rx_queue: 0,
       uid: 1000,
+      timeout: 0,
       inode: 12_345
     }.merge(overrides)
   end

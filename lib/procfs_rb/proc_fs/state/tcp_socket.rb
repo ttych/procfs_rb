@@ -9,6 +9,8 @@ module ProcFS
     class TcpSocket
       include Snapshot
 
+      TCP = 'tcp'
+
       # TCP state constants (from linux/tcp_states.h)
       STATES = {
         '01' => :established,
@@ -25,17 +27,20 @@ module ProcFS
       }.freeze
 
       MEMBERS = %i[
+        protocol
         local_address local_port
         remote_address remote_port
         connection_state
         tx_queue rx_queue
-        uid inode
+        uid timeout inode
       ].freeze
 
       attr_reader(*MEMBERS)
 
       def initialize(local_address:, local_port:, remote_address:, remote_port:,
-                     connection_state:, tx_queue:, rx_queue:, uid:, inode:)
+                     connection_state:, tx_queue:, rx_queue:, uid:, timeout:, inode:,
+                     protocol: TCP)
+        @protocol         = protocol
         @local_address    = local_address
         @local_port       = local_port
         @remote_address   = remote_address
@@ -44,6 +49,7 @@ module ProcFS
         @tx_queue         = tx_queue
         @rx_queue         = rx_queue
         @uid              = uid
+        @timeout          = timeout
         @inode            = inode
 
         freeze

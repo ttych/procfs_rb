@@ -44,6 +44,7 @@ module ProcFS
           tx_queue: tx_hex.to_i(16),
           rx_queue: rx_hex.to_i(16),
           uid: parts[7].to_i,
+          timeout: parts[8].to_i,
           inode: parts[9].to_i
         )
       end

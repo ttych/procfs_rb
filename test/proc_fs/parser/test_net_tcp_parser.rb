@@ -9,8 +9,8 @@ class TestNetTcpParser < Minitest::Test
     @parser = ProcFS::Parser::NetTcpParser.new
     @sample_content = <<~CONTENT
       sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
-      0: 0100007F:0050 00000000:0000 0A 0:0 0:0 0 0
-      1: 0100007F:04D2 08080808:01BB 01 0:0 0:0 100 12345
+      0: 0100007F:0050 00000000:0000 0A 0:0 0:0 0 0 10
+      1: 0100007F:04D2 08080808:01BB 01 0:0 0:0 100 12345 12345
     CONTENT
   end
 
@@ -33,6 +33,7 @@ class TestNetTcpParser < Minitest::Test
     assert_equal :listen, s0.connection_state
     assert_equal 0, s0.tx_queue
     assert_equal 0, s0.rx_queue
+    assert_equal 10, s0.timeout
 
     # Socket 1: 127.0.0.1:1234, 8.8.8.8:443, state :established (01)
     s1 = result.sockets.find { |s| s.local_port == 1234 }
@@ -41,6 +42,7 @@ class TestNetTcpParser < Minitest::Test
     assert_equal IPAddr.new('8.8.8.8'), s1.remote_address
     assert_equal 443, s1.remote_port
     assert_equal :established, s1.connection_state
+    assert_equal 12_345, s1.timeout
   end
 
   def test_parse_empty_content

@@ -11,17 +11,17 @@ class TestNetTcp < Minitest::Test
       ProcFS::State::TcpSocket.new(
         local_address: IPAddr.new('127.0.0.1'), local_port: 80,
         remote_address: IPAddr.new('0.0.0.0'), remote_port: 0,
-        connection_state: :listen, tx_queue: 0, rx_queue: 0, uid: 0, inode: 1
+        connection_state: :listen, tx_queue: 0, rx_queue: 0, uid: 0, timeout: 0, inode: 1
       ),
       ProcFS::State::TcpSocket.new(
         local_address: IPAddr.new('127.0.0.1'), local_port: 1234,
         remote_address: IPAddr.new('8.8.8.8'), remote_port: 443,
-        connection_state: :established, tx_queue: 0, rx_queue: 0, uid: 1000, inode: 2
+        connection_state: :established, tx_queue: 0, rx_queue: 0, uid: 1000, timeout: 0, inode: 2
       ),
       ProcFS::State::TcpSocket.new(
         local_address: IPAddr.new('127.0.0.1'), local_port: 5678,
         remote_address: IPAddr.new('1.1.1.1'), remote_port: 80,
-        connection_state: :time_wait, tx_queue: 0, rx_queue: 0, uid: 1000, inode: 3
+        connection_state: :time_wait, tx_queue: 0, rx_queue: 0, uid: 1000, timeout: 0, inode: 3
       )
     ]
     @tcp_info = ProcFS::State::NetTcp.new(sockets: @sockets)
