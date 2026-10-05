@@ -6,7 +6,7 @@ require_relative '../../../lib/procfs_rb/proc_fs/parser/net_tcp_parser'
 
 class TestNetTcpParser < Minitest::Test
   def setup
-    @parser = ProcFS::Parser::NetTcpParser.new
+    @parser = ProcFS::Parser::NetTcpParser.ipv4
     @sample_content = <<~CONTENT
       sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
       0: 0100007F:0050 00000000:0000 0A 0:0 0:0 0 0 10
@@ -55,5 +55,38 @@ class TestNetTcpParser < Minitest::Test
     result = @parser.parse(@sample_content, source: '/custom/path')
 
     assert_equal '/custom/path', result.source
+  end
+
+  def test_parse_unknown_state
+    content = <<~CONTENT
+      sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
+      0: 0100007F:0050 00000000:0000 ZZ 0:0 0:0 0 0 10
+    CONTENT
+    result = @parser.parse(content)
+
+    assert_equal :unknown, result.sockets.first.connection_state
+  end
+
+  def test_parse_malformed_line
+    content = <<~CONTENT
+      sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
+      0: 0100007F:0050 missing_columns
+    CONTENT
+    # It should handle it gracefully by returning nil for the socket line
+    result = @parser.parse(content)
+
+    assert_empty result.sockets
+  end
+
+  def test_parse_ipv6_source
+    ipv6_parser = ProcFS::Parser::NetTcpParser.ipv6
+    content = <<~CONTENT
+      sl  local_address rem_address   st tx_queue rx_queue tr tm->filling
+      0: 00000000000000000000000001000000:0050 00000000000000000000000000000000:0000 0A 0:0 0:0 0 0 10
+    CONTENT
+    result = ipv6_parser.parse(content)
+
+    assert_equal IPAddr.new('::1'), result.sockets.first.local_address
+    assert_equal '/proc/net/tcp6', result.source
   end
 end

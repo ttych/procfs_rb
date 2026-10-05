@@ -66,4 +66,11 @@ class TestNetTcp < Minitest::Test
     assert_equal 1, @tcp_info.by_state(:established).size
     assert_empty @tcp_info.by_state(:syn_sent)
   end
+
+  def test_empty_state
+    empty_tcp = ProcFS::State::NetTcp.new(sockets: [])
+
+    assert_predicate empty_tcp, :empty?
+    assert_equal 0, empty_tcp.size
+  end
 end

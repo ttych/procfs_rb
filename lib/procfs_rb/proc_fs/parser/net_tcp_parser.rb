@@ -3,15 +3,30 @@
 require_relative 'parser_interface'
 require 'ipaddr'
 require_relative '../state/net_tcp'
+require_relative 'ipv4_hex_parser'
 
 module ProcFS
   module Parser
     class NetTcpParser
-      DEFAULT_SOURCE = '/proc/net/tcp'
-
       include ParserInterface
 
-      def parse(content, source: DEFAULT_SOURCE)
+      TCP_SOURCE = '/proc/net/tcp'
+      TCP6_SOURCE = '/proc/net/tcp6'
+
+      def self.ipv4
+        new(source: TCP_SOURCE, ip_parser: IPv4HexParser.new)
+      end
+
+      def self.ipv6
+        new(source: TCP6_SOURCE, ip_parser: IPv6HexParser.new)
+      end
+
+      def initialize(source:, ip_parser:)
+        @source = source
+        @ip_parser = ip_parser
+      end
+
+      def parse(content, source: @source)
         read_at = Time.now
         lines = content.lines.drop(1) # Skip the header line
 
@@ -26,9 +41,13 @@ module ProcFS
 
       private
 
+      attr_reader :source, :ip_parser
+
       def parse_socket_line(line)
         parts = line.split
-        return nil if parts.empty?
+
+        # The header line has 8 parts, but a data line has 9
+        return nil if parts.size < 9
 
         local_ip, local_port = parse_address(parts[1])
         remote_ip, remote_port = parse_address(parts[2])
@@ -54,12 +73,7 @@ module ProcFS
       def parse_address(hex_addr)
         ip_hex, port_hex = hex_addr.split(':')
 
-        # IPv4: 8 hex chars, stored in little-endian 32-bit
-        ip_int = ip_hex.to_i(16)
-        ip_bytes = [ip_int].pack('V').unpack('C4')
-        ip_string = ip_bytes.join('.')
-
-        [IPAddr.new(ip_string), port_hex.to_i(16)]
+        [ip_parser.parse(ip_hex), port_hex.to_i(16)]
       end
     end
   end

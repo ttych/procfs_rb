@@ -3,7 +3,7 @@
 require_relative 'proc_fs/proc_fs_root'
 
 module ProcFS
-  def new(**)
+  def self.new(**)
     ProcFSRoot.new(**)
   end
 end

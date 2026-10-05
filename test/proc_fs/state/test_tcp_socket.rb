@@ -35,14 +35,22 @@ class TestTcpSocket < Minitest::Test
     assert_predicate listen_socket, :listening?
     refute_predicate listen_socket, :established?
 
-    est_socket = ProcFS::State::TcpSocket.new(**socket_attrs(connection_state: :established))
+    test_socket = ProcFS::State::TcpSocket.new(**socket_attrs(connection_state: :established))
 
-    assert_predicate est_socket, :established?
-    refute_predicate est_socket, :listening?
+    assert_predicate test_socket, :established?
+    refute_predicate test_socket, :listening?
 
-    closed_socket = ProcFS::State::TcpSocket.new(**socket_attrs(connection_state: :time_wait))
+    # Test all closed states
+    %i[close time_wait close_wait last_ack closing].each do |state|
+      closed_socket = ProcFS::State::TcpSocket.new(**socket_attrs(connection_state: state))
 
-    assert_predicate closed_socket, :closed?
+      assert_predicate closed_socket, :closed?, "State #{state} should be considered closed"
+    end
+
+    # Test a non-closed state
+    listen_socket = ProcFS::State::TcpSocket.new(**socket_attrs(connection_state: :listen))
+
+    refute_predicate listen_socket, :closed?
   end
 
   def test_ip_helpers
