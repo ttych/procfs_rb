@@ -4,6 +4,7 @@ require_relative 'parser_interface'
 require 'ipaddr'
 require_relative '../state/net_tcp'
 require_relative 'ipv4_hex_parser'
+require_relative 'ipv6_hex_parser'
 
 module ProcFS
   module Parser

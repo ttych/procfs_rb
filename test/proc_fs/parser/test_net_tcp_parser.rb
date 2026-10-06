@@ -80,5 +80,9 @@ class TestNetTcpParser < Minitest::Test
     result = ipv6_parser.parse(content)
 
     assert_equal IPAddr.new('::1'), result.sockets.first.local_address
+    assert_equal 80, result.sockets.first.local_port
+    assert_equal IPAddr.new('::'), result.sockets.first.remote_address
+    assert_equal 0, result.sockets.first.remote_port
+    assert_equal :listen, result.sockets.first.connection_state
   end
 end
