@@ -10,23 +10,19 @@ module ProcFS
     class NetTcpParser
       include ParserInterface
 
-      TCP_SOURCE = '/proc/net/tcp'
-      TCP6_SOURCE = '/proc/net/tcp6'
-
       def self.ipv4
-        new(source: TCP_SOURCE, ip_parser: IPv4HexParser.new)
+        new(ip_parser: IPv4HexParser.new)
       end
 
       def self.ipv6
-        new(source: TCP6_SOURCE, ip_parser: IPv6HexParser.new)
+        new(ip_parser: IPv6HexParser.new)
       end
 
-      def initialize(source:, ip_parser:)
-        @source = source
+      def initialize(ip_parser:)
         @ip_parser = ip_parser
       end
 
-      def parse(content, source: @source)
+      def parse(content)
         read_at = Time.now
         lines = content.lines.drop(1) # Skip the header line
 
@@ -34,14 +30,13 @@ module ProcFS
 
         State::NetTcp.new(
           sockets: sockets,
-          timestamp: read_at,
-          source: source
+          timestamp: read_at
         )
       end
 
       private
 
-      attr_reader :source, :ip_parser
+      attr_reader :ip_parser
 
       def parse_socket_line(line)
         parts = line.split

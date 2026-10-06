@@ -19,7 +19,6 @@ class TestNetTcpParser < Minitest::Test
 
     assert_instance_of ProcFS::State::NetTcp, result
     assert_equal 2, result.size
-    assert_equal '/proc/net/tcp', result.source
     assert_kind_of Time, result.timestamp
   end
 
@@ -49,12 +48,6 @@ class TestNetTcpParser < Minitest::Test
     result = @parser.parse("sl  local_address rem_address   st tx_queue rx_queue tr tm->filling\n")
 
     assert_empty result.sockets
-  end
-
-  def test_parse_with_custom_source
-    result = @parser.parse(@sample_content, source: '/custom/path')
-
-    assert_equal '/custom/path', result.source
   end
 
   def test_parse_unknown_state
@@ -87,6 +80,5 @@ class TestNetTcpParser < Minitest::Test
     result = ipv6_parser.parse(content)
 
     assert_equal IPAddr.new('::1'), result.sockets.first.local_address
-    assert_equal '/proc/net/tcp6', result.source
   end
 end

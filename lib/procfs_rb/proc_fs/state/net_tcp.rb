@@ -12,14 +12,14 @@ module ProcFS
       include Timestamped
       include Enumerable
 
-      MEMBERS = %i[sockets timestamp source].freeze
+      MEMBERS = %i[sockets timestamp].freeze
 
       attr_reader(*MEMBERS)
 
-      def initialize(sockets:, timestamp: Time.now, source: '/proc/net/tcp')
+      def initialize(sockets:, timestamp: Time.now)
         @sockets   = sockets
         @timestamp = timestamp
-        @source    = source
+
         freeze
       end
 
@@ -49,7 +49,7 @@ module ProcFS
       end
 
       def inspect
-        "#<ProcFS::State::TcpInfo source=#{source.inspect} " \
+        '#<ProcFS::State::TcpInfo ' \
           "count=#{sockets.size} timestamp=#{timestamp.iso8601(3)}>"
       end
 

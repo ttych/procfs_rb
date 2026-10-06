@@ -30,7 +30,6 @@ class TestNetTcp < Minitest::Test
   def test_initialization
     assert_equal @sockets, @tcp_info.sockets
     assert_kind_of Time, @tcp_info.timestamp
-    assert_equal '/proc/net/tcp', @tcp_info.source
     assert_predicate @tcp_info, :frozen?
   end
 
